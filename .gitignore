@@ -1,7 +1,7 @@
 # Google Account Info
 **/GoogleAccount.txt
 **/GoogleKey.p12
-
+*.sql
 *.swp
 
 # Windows image file caches
