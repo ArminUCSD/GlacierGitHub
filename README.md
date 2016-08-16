@@ -13,6 +13,16 @@ sudo mysql_secure_installation
 sudo mysql_install_db
 ```
 
+**NOTE: ee library uses an outdated version of oauth2client (and a deprecated
+function). See issue: https://github.com/google/earthengine-api/issues/5
+To support this, it was necessary to uninstall oauth2client and reinstall
+version 1.5.2
+
+```
+>sudo pip uninstall oauth2client
+>sudo pip install oauth2client==1.5.2
+```
+
 #Set up database
 Set mysql root password. Default user for this application is 'root'. See ```Docs/``` for details. To set root password, see http://dev.mysql.com/doc/refman/5.7/en/default-privileges.html
 

@@ -25,9 +25,7 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	#-----------------------------------------------------------------------
 	#                         access EE
 	#-----------------------------------------------------------------------
-	with open(path+'/Code/GoogleAccount.txt','r') as f: 
-		MY_SERVICE_ACCOUNT = f.readline() 
-	
+	MY_SERVICE_ACCOUNT = '384403807661@developer.gserviceaccount.com'
 	MY_PRIVATE_KEY_FILE = path + '/Code/GoogleKey.pem'
         credentials = ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE)
 	ee.Initialize(credentials)
@@ -120,7 +118,7 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 # 	with open(path+'/Code/GoogleAccount.txt','r') as f: 
 # 		MY_SERVICE_ACCOUNT = f.readline() 
 	
-# 	MY_PRIVATE_KEY_FILE = path+'/Code/GoogleKey.p12'
+# 	MY_PRIVATE_KEY_FILE = path+'/Code/GoogleKey.pem'
 # 	ee.Initialize(ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE))
 	
 # 	#-----------------------------------------------------------------------
@@ -310,7 +308,7 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	with open(path+'/Code/GoogleAccount.txt','r') as f: 
 		MY_SERVICE_ACCOUNT = f.readline() 
 	
-	MY_PRIVATE_KEY_FILE = path+'/Code/GoogleKey.p12'
+	MY_PRIVATE_KEY_FILE = path+'/Code/GoogleKey.pem'
 	ee.Initialize(ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE))
 
 	#-----------------------------------------------------------------------

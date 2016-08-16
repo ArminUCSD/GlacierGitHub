@@ -60,8 +60,8 @@ for GlacierName in GlacierNames:
 		DEMfile = ee_download.ee_download_DEM(path,GlacierName,float(BoundingBox[0]),float(BoundingBox[2]),float(BoundingBox[1]),float(BoundingBox[3]))
 		rgbplot.downloadAndClassifyLandsat(GlacierName,path,BoundingBox)
 			
-		#4.Method1 - Finding the path of the glacier
-		print "4.Determining the flowline of the glacier"
+		#3.Method1 - Finding the path of the glacier
+		print "3.Determining the flowline of the glacier"
 		print os.getcwd()
 		dim = Method1.getDimensions(path+'Data/'+GlacierName+'/'+DEMfile)
 		start = Method1.beginningPoint(float(BoundingBox[0]),float(BoundingBox[1]),float(BoundingBox[2]),float(BoundingBox[3]),float(StartPoint[0]),float(StartPoint[1]),dim[0],dim[1],0.1)
@@ -70,14 +70,14 @@ for GlacierName in GlacierNames:
 		pathVector = Method1.smoothPath(GLpath)
 		pathVectors = Method1.parallelPath(pathVector,path+'Data/'+GlacierName+'/'+DEMfile,numParallel)
 
-		#5.Method3 - Calculating the intensity profile time series
-		print "5.Computing the Intensity profile Time Series"
+		#4.Method3 - Calculating the intensity profile time series
+		print "4.Computing the Intensity profile Time Series"
 		timeline,ipTimeSeries, landsatFiles = Method3.intensityProfile(path+'Data/'+GlacierName+'/Landsat/',pathVectors,Input,weights)
 		timeline.sort()
 		arcVector = Method3.arcLengthVector(ipTimeSeries[timeline[0]],0.2,30)
 
 		#6.Method4 - Estimating the terminus
-		print "6.Estimating Terminus and plot results"
+		print "5.Estimating Terminus and plot results"
 		gm = querydb.findGroundMeasurement(GlacierName)
 		grndmeas = {}
 		list1 = []
@@ -89,8 +89,8 @@ for GlacierName in GlacierNames:
 		grndmeas['gm'] = list2
 		terminus = Method4.estimateTerminus(path+'Results/'+GlacierName+'/'+Input,GlacierName,arcVector,timeline,ipTimeSeries,grndmeas,invert,distPerYear)
 
-		#7.Plotting flowline
-		print "7.Plotting flowline"
+		#6.Plotting flowline
+		print "6.Plotting flowline"
 		folder = os.listdir(path+'Data/'+GlacierName+'/Landsat/')
 		if Input != 'B6_VCID_1':
 			img = find('*.'+Input+'.tif',path+'Data/'+GlacierName+'/Landsat/'+folder[-1])
@@ -101,8 +101,8 @@ for GlacierName in GlacierNames:
 		os.chdir(path)
 		Method1.plotPathsDEM(pathVectors,path+'Results/'+GlacierName,GlacierName,path+'Data/'+GlacierName+'/'+DEMfile,numParallel,invert)
 
-		#8. Create series of images with terminus location
-		print "8.Generating terminus Plots"
+		#7. Create series of images with terminus location
+		print "7.Generating terminus Plots"
 		os.chdir(path)
 		TI.terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,path+'Results/'+GlacierName+'/'+Input,invert,Input)
 
