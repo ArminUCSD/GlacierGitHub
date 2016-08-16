@@ -1,0 +1,85 @@
+
+#  All files needed to run the pipeline:
+
+main.py
+
+local sql server with ¡°glaciers¡± table
+
+GoogleKey.p12
+GoogleAccount.txt
+
+querydb.py
+ee_download.py
+rgbplot.py
+ConnectedComponentAStar.py
+TI.py
+
+Method1.py
+Method2.py
+Method3.py
+Method4.py
+
+
+gd_linear.r
+IntensityProfile.r
+terminus.R
+plot_terminus.R
+
+
+# Pipeline file dependency for main.py 
+
+query glacier bounding box and geographical coordinates
+- querydb.py 
+	- local mysql server, "glaciers" table
+
+download DEM
+- ee_download.py 
+	- Googlekey.p12
+	- GoogleAccount.txt
+
+download and classify landsat
+- rgbplot.py 
+	- Method2.py
+	- ee_download.py
+
+manual flowline
+- manual flowline folder 
+
+GD flowline 
+- Method1.py 
+ 	- gd_linear.r
+	- ConnectedComponentAStar.py
+
+intensity profiles
+- Method3.py
+	- IntensityProfile.r
+
+query ground measurements
+- querydb
+	- local mysql server, "glaciers" table
+
+estimate terminus 
+- Method4.py 
+	- terminus.R
+
+plotting flowline on DEM and Landsat image
+- Method1.py
+	- gd_linear.R
+
+create gif of terminus location
+- TI.py
+	- plot_terminus.R
+
+
+
+
+
+
+
+
+
+
+
+
+
+

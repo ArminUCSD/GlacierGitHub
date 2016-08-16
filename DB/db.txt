@@ -1,0 +1,40 @@
+create table glaciers (
+glacier_id varchar(32),
+glacier_name varchar(50),
+wgms_id varchar(20),
+line_type varchar(21),
+left_bottom_x decimal(10,6),
+left_bottom_y decimal(10,6),
+right_top_x decimal(10,6),
+right_top_y decimal(10,6),
+PRIMARY KEY (glacier_id,glacier_name,wgms_id,line_type,left_bottom_x,left_bottom_y,right_top_x,right_top_y));
+
+create table points (
+glacier_id varchar(32),
+x decimal(10,6),
+y decimal(10,6),
+PRIMARY KEY (glacier_id,x,y),
+FOREIGN KEY (glacier_id) REFERENCES glaciers(glacier_id) on delete cascade);
+
+create table wgms_glaciers (
+glacier_name varchar(50) PRIMARY KEY,
+political_unit varchar(2),
+latitude decimal(10,6),
+longitude decimal(11,7),
+primary_classification integer,
+form integer,
+frontal_characteristics integer);
+
+create table front_variation (
+glacier_name varchar(50),
+front_variation decimal(5,2),
+front_variation_accuracy decimal(5,2),
+year integer,
+PRIMARY KEY(glacier_name,year));
+
+create table commonDB (
+glims_id varchar(32) PRIMARY KEY,
+glims_name varchar(50),
+wgms_name varchar(50),
+area decimal(10,6));
+
