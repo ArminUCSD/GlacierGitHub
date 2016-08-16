@@ -100,9 +100,10 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 			return "GMTED2010.be75.tif"
 		else:
 			return "srtm90_v4.elevation.tif"
-	except:
-		print "error"
-
+        except Exception, e:
+            print("Download DEM")
+            print(str(e))
+            continue
 
 
 # def ee_download(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
@@ -314,7 +315,7 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	#-----------------------------------------------------------------------
 	#                 determine glacier boundry from excel file
 	#-----------------------------------------------------------------------
-	print glacier
+        print("Glacier: "+ glacier)
 	glacier = glacier.encode('ascii','ignore')
 	LonLen = MaxLon-MinLon
 	LatLen = MaxLat-MinLat
@@ -323,20 +324,24 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	MaxLat1 = MaxLat + margin*LatLen
 	MinLat1 = MinLat - margin*LatLen
 	bounds = [[MinLon1,MinLat1],[MaxLon1,MinLat1],[MaxLon1,MaxLat1],[MinLon1,MaxLat1]]
-	print(bounds)
+        print("Glacier bounds:")
+        print(bounds)
 
 	#------------------------------------------------------------------------
 	#                       download L7 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
+
+        print("download L7 images from EE")
 	beg_date = datetime.datetime(1999,1,1)
 	end_date = datetime.datetime(2014,1,1)
 	collection = ee.ImageCollection('LE7_L1T').filterDate(beg_date,end_date) 
 	polygon = ee.Feature.MultiPolygon([[bounds]])
 	collection = collection.filterBounds(polygon)
 	metadata = collection.getInfo()
-	print metadata.keys()
-	print metadata['features'][0]['id']
+
+	print(metadata.keys())
+	print(metadata['features'][0]['id'])
 
 	newpath = folder+glacier+"/Landsat"
 	if not os.path.exists(newpath): os.makedirs(newpath)
@@ -344,6 +349,8 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	#------------------------------------------------------------------------
 	#                      download Band 61 of the Landsat
 	#-----------------------------------------------------------------------
+
+        print("download band 61")
 
 	for i in range(len(metadata['features'])):
 		try:
@@ -376,13 +383,18 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 					
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-		except:
-			continue
+                except Exception, e:
+                    print("Download DEM")
+                    print(str(e))
+                    continue
 
 	#------------------------------------------------------------------------
 	#                       download L5 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
+
+        print("download L5 images from EE")
+
 	beg_date = datetime.datetime(1984,1,1)
 	end_date = datetime.datetime(2012,5,5)
 	collection = ee.ImageCollection('LT5_L1T').filterDate(beg_date,end_date) 
@@ -399,6 +411,8 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	#                      download Band 6 of the Landsat
 	#-----------------------------------------------------------------------
 
+        print("download Band 6 of the Landsat")
+
 	for i in range(len(metadata['features'])):
 		try:
 			sceneName = metadata['features'][i]['id']
@@ -429,13 +443,17 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 					
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-		except:
-			continue
+                except Exception, e:
+                    print(str(e))
+                    continue
 
 	#------------------------------------------------------------------------
 	#                       download L4 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
+
+        print("download L4 images from EE")
+
 	beg_date = datetime.datetime(1982,8,22)
 	end_date = datetime.datetime(1993,12,14)
 	collection = ee.ImageCollection('LT4_L1T').filterDate(beg_date,end_date) 
@@ -452,11 +470,13 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	#                      download Band 6 of the Landsat
 	#-----------------------------------------------------------------------
 
+        print("download Band 6 of the Landsat")
+
 	for i in range(len(metadata['features'])):
 		try:
 			sceneName = metadata['features'][i]['id']
 			print sceneName + ': Scene ' + str(i+1) + ' of ' + str(len(metadata['features']))
-			workingScene = ee.Image(sceneName)    
+			workingScene = ee.Image(sceneName)
 			dlPath = workingScene.getDownloadUrl({
 				'scale': 30,
 				'bands':[{'id':'B6'},{'id':'B5'},{'id':'B4'},{'id':'B3'},{'id':'B2'}],
@@ -482,8 +502,9 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 					
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-		except:
-			continue
+		except Exception, e:
+                    print(str(e))
+                    continue
 
 
 
