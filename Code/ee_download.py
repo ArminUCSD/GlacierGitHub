@@ -1,6 +1,6 @@
 #!/bin/python
 import os, zipfile, logging, ee , urllib2, datetime, gdal
-import numpy as np 
+import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 
@@ -29,7 +29,8 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 		MY_SERVICE_ACCOUNT = f.readline() 
 	
 	MY_PRIVATE_KEY_FILE = path + '/Code/GoogleKey.p12'
-	ee.Initialize(ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE))
+        credentials = ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE)
+	ee.Initialize(credentials)
 	
 	#-----------------------------------------------------------------------
 	#                 determine glacier boundry from excel file
