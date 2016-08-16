@@ -27,7 +27,8 @@ def find(pattern, path):
 
 # General parameters
 GlacierID=""
-GlacierNames= ["Athabasca Glacier","Chaba Glacier","COXE","David Glacier","Fassett","Fox, Explorer","Litian glacier","North Canoe Glacier","CORBASSIERE GLACIER DE","FERPECLE GLACIER DE","FIESCHERGLETSCHER VS","Findelengletscher","FORNO VADREC DEL","FRANZ JOSE","GAULIGLETSCHER","GORNERGLETSCHER","GROSSER ALETSCH GLETSCHER","MONT MINE GLACIER DU","MORTERATSCH VADRET DA","OTEMMA","Rhonegletscher","Ferebee","Fraenkel","Mer de Glace","MURCHISON","Torre"]
+GlacierNames1 = ["Athabasca Glacier","Chaba Glacier","COXE","David Glacier","Fassett","Fox, Explorer"]
+GlacierNames= ["Litian glacier","North Canoe Glacier","CORBASSIERE GLACIER DE","FERPECLE GLACIER DE","FIESCHERGLETSCHER VS","Findelengletscher","FORNO VADREC DEL","FRANZ JOSE","GAULIGLETSCHER","GORNERGLETSCHER","GROSSER ALETSCH GLETSCHER","MONT MINE GLACIER DU","MORTERATSCH VADRET DA","OTEMMA","Rhonegletscher","Ferebee","Fraenkel","Mer de Glace","MURCHISON","Torre"]
 
 imageInv = ["B2","B3","B4","ndsi"]
 noImageInv = ["B5","B6_VCID_1","61"]
