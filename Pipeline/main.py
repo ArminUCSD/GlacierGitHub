@@ -38,7 +38,7 @@ numParallel = 0   #number of parallel paths on each side
 distPerYear = 96   #max distance per year for retreat or advance in metres
 weights = "central"    # Central, Linear or equal
 
-path = os.path.abspath('./')
+path = os.path.abspath('../')
 
 # Main loop over glaciers
 for GlacierName in GlacierNames:
