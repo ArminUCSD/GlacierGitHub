@@ -1,6 +1,6 @@
 # Google Account Info
-GoogleAccount.txt
-GoogleKey.p12
+**/GoogleAccount.txt
+**/GoogleKey.p12
 
 # Windows image file caches
 Thumbs.db
