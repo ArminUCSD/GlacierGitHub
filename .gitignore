@@ -2,6 +2,7 @@
 **/local.py
 **/GoogleAccount.txt
 **/GoogleKey.p12
+**/GoogleKey.pem
 *.pyc
 *.sql
 *.swp

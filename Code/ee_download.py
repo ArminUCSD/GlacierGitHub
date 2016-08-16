@@ -28,7 +28,7 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	with open(path+'/Code/GoogleAccount.txt','r') as f: 
 		MY_SERVICE_ACCOUNT = f.readline() 
 	
-	MY_PRIVATE_KEY_FILE = path + '/Code/GoogleKey.p12'
+	MY_PRIVATE_KEY_FILE = path + '/Code/GoogleKey.pem'
         credentials = ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE)
 	ee.Initialize(credentials)
 	
