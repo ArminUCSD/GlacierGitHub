@@ -106,5 +106,6 @@ for GlacierName in GlacierNames:
 		os.chdir(path)
 		TI.terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,path+'Results/'+GlacierName+'/'+Input,invert,Input)
 
-	except:
+        except Exception, e:
+                print(str(e))
 		continue	

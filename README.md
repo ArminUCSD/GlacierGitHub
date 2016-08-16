@@ -1,5 +1,6 @@
+#Installation
 
-#To install requirements on Ubuntu (>=14.0), use the following commands:
+#Install requirements
 ```
 sudo apt-get update
 
@@ -11,3 +12,19 @@ sudo mysql_secure_installation
 
 sudo mysql_install_db
 ```
+
+#Set up database
+Set mysql root password. Default user for this application is 'root'. See ```Docs/``` for details. To set root password, see http://dev.mysql.com/doc/refman/5.7/en/default-privileges.html
+
+Create 'glaciers' database
+------------------
+```
+> mysql -u root -p[root_password]
+> CREATE DATABASE glaciers;
+```
+
+
+Restore database from sqldump.sql
+------------------
+
+```> mysql -u root -p[root_password] glaciers < sqldump.sql```

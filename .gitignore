@@ -1,4 +1,5 @@
 # Google Account Info
+**/local.py
 **/GoogleAccount.txt
 **/GoogleKey.p12
 *.sql
