@@ -1,4 +1,5 @@
 import os
+from os.path import join as pathjoin
 import numpy as np
 import scipy.misc as mi
 try:
@@ -21,12 +22,12 @@ import Method2
 def rgbPlot(image):
 	files = os.listdir(image)
 	for im in files:
-		if im.endswith('.B3.tif'): 
-			b3 = gdal.Open(image+"/"+im, gdal.GA_Update).ReadAsArray()
-		if im.endswith('.B4.tif'): 
-			b4 = gdal.Open(image+"/"+im, gdal.GA_Update).ReadAsArray()
-		if im.endswith('.B5.tif'): 
-			b5 = gdal.Open(image+"/"+im, gdal.GA_Update).ReadAsArray()
+		if im.endswith('.B3.tif'):
+			b3 = gdal.Open(pathjoin(image,im), gdal.GA_Update).ReadAsArray()
+		if im.endswith('.B4.tif'):
+			b4 = gdal.Open(pathjoin(image,im), gdal.GA_Update).ReadAsArray()
+		if im.endswith('.B5.tif'):
+			b5 = gdal.Open(pathjoin(image,im), gdal.GA_Update).ReadAsArray()
 
 	direc = image
 	dirsplit = direc.split('/')
@@ -41,8 +42,9 @@ def rgbPlot(image):
 	ax.set_axis_off()
 	f.add_axes(ax)
 
-	ax.imshow(rgb, aspect='normal')
-	f.savefig(image+"/"+folder+".rgb.tif")
+        #aspect='normal' is depracated in matplotlib
+	ax.imshow(rgb, aspect='auto')
+	f.savefig(pathjoin(image,folder+".rgb.tif"))
 	plt.close()
 
 
@@ -51,9 +53,9 @@ def ndsi(image):
 
 	for im in files:
 		if im.endswith('.B2.tif'): 
-			b2 = gdal.Open(image+"/"+im, gdal.GA_Update).ReadAsArray()
+			b2 = gdal.Open(pathjoin(image,im), gdal.GA_Update).ReadAsArray()
 		if im.endswith('.B5.tif'): 
-			b5 = gdal.Open(image+"/"+im, gdal.GA_Update).ReadAsArray()
+			b5 = gdal.Open(pathjoin(image,im), gdal.GA_Update).ReadAsArray()
 
 	direc = image
 	dirsplit = direc.split('/')
@@ -70,16 +72,26 @@ def ndsi(image):
 	ndsi_ind = np.int64(drf>0)
 	ndsi1 = np.multiply(ndsi_ind, ndsi1)
 	ndsi1 = mi.bytescale(ndsi1)
-	tif = TIFF.open(image+"/"+folder+".ndsi.tif", mode = 'w')
+	tif = TIFF.open(pathjoin(image,folder+".ndsi.tif"), mode = 'w')
 	tif.write_image(ndsi1)
 
+def classifyLandsat(path, GlacierName, BoundingBox):
+    landsatPath = pathjoin(path,"Data",GlacierName,"Landsat")
+    Method2.classify(landsatPath,0.7,-21.153,0.176,0.550)
+    images = [pathjoin(path,"Data",GlacierName,"Landsat",item) for item in os.listdir(pathjoin(path,"Data",GlacierName,"Landsat"))]
+    for count, image in enumerate(images,start=1):
+        if image.endswith('.zip'):
+            continue
+        print(str(count)+": "+image)
+        try:
+            rgbPlot(image)
+            ndsi(image)
+        except Exception, e:
+            print("Error creating ndsi or rgbPlot for "+image)
+            print(str(e))
+            pass
 
-def downloadAndClassifyLandsat(GlacierName, path, BoundingBox):
-	ee_download.ee_download_Allbands(path,GlacierName,float(BoundingBox[0]),float(BoundingBox[2]),float(BoundingBox[1]),float(BoundingBox[3]))
-	Method2.classify(path+"Data/"+GlacierName+"/Landsat/",0.7,-21.153,0.176,0.550)
-	images = [x[0] for x in os.walk(path+"Data/"+GlacierName+"/Landsat/")]
-	for image in images[1:]:
-		rgbPlot(image)
-		ndsi(image)
+def downloadLandsat(path, GlacierName, BoundingBox):
+        bounds = ee_download.getBounds(float(BoundingBox[0]),float(BoundingBox[2]),float(BoundingBox[1]),float(BoundingBox[3]))
+	ee_download.ee_download_Allbands(path,GlacierName,bounds)
 	
-

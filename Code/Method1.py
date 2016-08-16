@@ -20,7 +20,6 @@ def getDimensions(filename):
 	im = Image.open(filename)
 	return (im.size[0],im.size[1])
 
-
 def beginningPoint(maxLon,maxLat,minLon,minLat,Lon,Lat,ncol,nrow,margin):
 	# print maxLon,maxLat,minLon,minLat
 	minLon1 = minLon - margin*(maxLon-minLon)
@@ -32,7 +31,6 @@ def beginningPoint(maxLon,maxLat,minLon,minLat,Lon,Lat,ncol,nrow,margin):
 	beg_row = round(nrow*(Lat-minLat1)/(maxLat1-minLat1))
 	# print (beg_row,beg_col)
 	return (beg_row,beg_col)
-
 
 def findPath(DEMpath,start_x,start_y,flowline,DEMfile):
 	DEM = np.array(gdal.Open(DEMpath).ReadAsArray())
@@ -61,7 +59,7 @@ def findPath(DEMpath,start_x,start_y,flowline,DEMfile):
 	#	print GLpath
 	return GLpath
 
-def smoothPath(glacier_path, step_size):
+def smoothPath(glacier_path, step_size=.5):
 	robjects.r('''source('gd_linear.R')''')
 	r_smooth = robjects.globalenv['path_smooth']
 	pathVector = r_smooth(glacier_path,step_size,3)
@@ -90,7 +88,6 @@ def plotPaths(pathVectors,direc,glacier,landsatpath,numparallel,invert,Input,low
 	robjects.r('''source('gd_linear.R')''')
 	r_plot = robjects.globalenv['plot_allpath']
 	r_plot(landsatmatrix,direc,glacier,pathVectors,numparallel,lower,upper,invert)
-
 
 def plotPathsDEM(pathVectors,direc,glacier,DEMpath,numparallel,invert):
 	DEM = gdal.Open(DEMpath, gdal.GA_Update).ReadAsArray()

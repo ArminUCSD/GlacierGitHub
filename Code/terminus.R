@@ -264,7 +264,7 @@ terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NUL
   #time <- floor(min(tt)):ceiling(max(tt))
   #if ( IP == 1){
     current_dir = getwd()
-    setwd("/home/aseshad/RA/manual_intensity")
+    setwd(direc)
     #glacier = "Rhonegletscher"
     IPTS = read.csv(paste(glacier, ".csv",sep = ""))
     nrow = nrow(IPTS)

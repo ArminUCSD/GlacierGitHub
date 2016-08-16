@@ -264,7 +264,7 @@ terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NUL
   #time <- floor(min(tt)):ceiling(max(tt))
   if(IP == 1){
     current_dir = getwd()
-    setwd("/home/aseshad/RA/manual_intensity")
+    setwd(direc)
     #glacier = "Rhonegletscher"
     IPTS = read.csv(paste(glacier, ".csv",sep = ""))
     nrow = nrow(IPTS)
@@ -352,7 +352,7 @@ terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NUL
 
 #------------------ use the codes on manual extrated intensity profiles-----------------------------------------------------------------------
 current_dir = getwd()
-setwd("/home/aseshad/RA/manual_intensity")
+setwd(direc)
 glacier = "Rhonegletscher"
 IPTS = read.csv(paste(glacier, ".csv",sep = ""))
 nrow = nrow(IPTS)
@@ -362,8 +362,8 @@ rownames(obs)= NULL
 colnames(obs) = NULL
 tt = as.numeric(IPTS[1,2:(ncol-1)]) # 
 ss = as.numeric(as.character(IPTS[2:nrow,1]))    
-setwd("/home/aseshad/RA/Pipeline21.0/Code")
-dir = "/home/aseshad/RA/manual_intensity"
+setwd(direc)
+dir = current_dir
 t =terminus("Rhonegletscher", obs, ss, tt, meas= NULL, plot = TRUE, direc = dir, linefit = 0, temporal = 1,invert = 1, distPerYear = 100, IP = 0)
 
 

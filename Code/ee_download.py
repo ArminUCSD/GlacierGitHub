@@ -1,5 +1,7 @@
 #!/bin/python
 import os, zipfile, logging, ee , urllib2, datetime, gdal
+from os.path import join as pathjoin 
+from os.path import exists as pathexists 
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
@@ -7,6 +9,7 @@ import matplotlib.pyplot as plt
 # modified July 20, 2014 
 import glob
 import xlrd
+
 try:
     from PIL import Image
 except:
@@ -14,24 +17,19 @@ except:
 import xml.etree.ElementTree as treeObj
 from xml.dom.minidom import parseString,parse
 
-def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
-	# define margin added to bounding box for downloading image 
-	margin = 0.1 
-	folder = path+"/Data/"
-	
-	#-----------------------------------------------------------------------
-	#                         access EE
-	#-----------------------------------------------------------------------
-	MY_SERVICE_ACCOUNT = '384403807661@developer.gserviceaccount.com'
-	MY_PRIVATE_KEY_FILE = path + '/Code/GoogleKey.pem'
-        credentials = ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE)
-	ee.Initialize(credentials)
-	
-	#-----------------------------------------------------------------------
-	#                 determine glacier boundry from excel file
-	#-----------------------------------------------------------------------
-	print glacier
-	glacier = glacier.encode('ascii','ignore')
+BASEIMAGE = 'srtm90_v4'
+INITIALCRS = 30 
+INITIALSCALE = 'EPSG:4326'
+ELEVATIONTIFNAME = "srtm90_v4.elevation.tif"
+USGSIMAGE = 'USGS/GMTED2010'
+
+DEMFILE1 = "GMTED2010.be75.tif"
+DEMFILE2 = "srtm90_v4.elevation.tif"
+
+MY_SERVICE_ACCOUNT = '384403807661@developer.gserviceaccount.com'
+MY_PRIVATE_KEY_FILE = 'Code/GoogleKey.pem'
+
+def getBounds(MaxLon,MinLon,MaxLat,MinLat):
 	LonLen = MaxLon-MinLon
 	LatLen = MaxLat-MinLat
 	MaxLon1 = MaxLon + margin*LonLen
@@ -39,129 +37,117 @@ def ee_download_DEM(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 	MaxLat1 = MaxLat + margin*LatLen
 	MinLat1 = MinLat - margin*LatLen
 	bounds = [[MinLon1,MinLat1],[MaxLon1,MinLat1],[MaxLon1,MaxLat1],[MinLon1,MaxLat1]]
-	print(bounds)
+	return bounds
 
-	newpath = folder+glacier
-	if not os.path.exists(newpath): os.makedirs(newpath)
+def getDLPath(image, region, scale=INITIALSCALE, crs=INITIALCRS):
+    return image.getDownloadUrl({
+        'scale': scale,
+        'crs': crs,
+        'region': region,
+        })
+
+def ee_download_DEM(path,glacier,bounds):
+        keyfile = pathjoin(path, MY_PRIVATE_KEY_FILE)
+	# define margin added to bounding box for downloading image 
+	margin = 0.1
+	folder = pathjoin(path,"Data")
+	
+	#-----------------------------------------------------------------------
+	#                         access EE
+	#-----------------------------------------------------------------------
+        credentials = ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, keyfile)
+	ee.Initialize(credentials)
+	
+	print(glacier)
+	glacier = glacier.encode('ascii','ignore')
+
+	newpath = pathjoin(folder,glacier)
+	if not pathexists(newpath): os.makedirs(newpath)
 
 	#-----------------------------------------------------------------------
 	#                        download DEM
 	#-----------------------------------------------------------------------
 	try:	
-		image = ee.Image('srtm90_v4')
-		dlPath = image.getDownloadUrl({
-				'scale': 30,
-				'crs': 'EPSG:4326',
-				'region': bounds,
-			})
+		image = ee.Image(BASEIMAGE)
+                dlPath = getDLPath(image, bounds)
 		demzip = urllib2.urlopen(dlPath)
 		# download the zip file to document folder 
 		workingDir = newpath
-		if not os.path.exists(workingDir):
+		if not pathexists(workingDir):
 			os.mkdir(workingDir)
 		with open(workingDir + '.zip', "wb") as local_file:
 			local_file.write(demzip.read())
 		# unzip the contents
 		zfile = zipfile.ZipFile(workingDir + '.zip')
 		for j in zfile.namelist():
-			fd = open(workingDir + '/' + j,"w")
+			fd = open(pathjoin(workingDir,j),"w")
 			fd.write(zfile.read(j))
 			fd.close()
 		# delete the zip file
 		os.remove(workingDir + '.zip')
-		DEM = np.array(gdal.Open(workingDir+"/srtm90_v4.elevation.tif").ReadAsArray())
+		DEM = np.array(gdal.Open(pathjoin(workingDir,ELEVATIONTIFNAME)).ReadAsArray())
 		count = np.count_nonzero(DEM)
 		if count == 0:
-			os.remove(workingDir+"/srtm90_v4.elevation.tif")
-			image = ee.Image('USGS/GMTED2010')
-			dlPath = image.getDownloadUrl({
-					'scale': 30,
-					'crs': 'EPSG:4326',
-					'region': bounds,
-				})
-			demzip = urllib2.urlopen(dlPath)
-			# download the zip file to document folder 
-			workingDir = newpath
-			if not os.path.exists(workingDir):
+			os.remove(pathjoin(workingDir,ELEVATIONTIFNAME))
+			image = ee.Image(USGSIMAGE)
+			dlPath = getDLPath(image, bounds)
+                        demzip = urllib2.urlopen(dlPath)
+			if not pathexists(workingDir):
 				os.mkdir(workingDir)
 			with open(workingDir + '.zip', "wb") as local_file:
 				local_file.write(demzip.read())
 			# unzip the contents
 			zfile = zipfile.ZipFile(workingDir + '.zip')
 			for j in zfile.namelist():
-				fd = open(workingDir + '/' + j,"w")
+				fd = open(pathjoin(workingDir,j),"w")
 				fd.write(zfile.read(j))
 				fd.close()
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-			return "GMTED2010.be75.tif"
+			return DEMFILE1 
 		else:
-			return "srtm90_v4.elevation.tif"
-        except Exception, e:
-            print("Download DEM")
-            print(str(e))
-            continue
+			return DEMFILE2 
 
+	except Exception, e:
+		print("Download DEM")
+		print(str(e))
+		pass
 
-def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
-	
+def ee_download_Allbands(path,glacier,bounds):
+        keyfile = pathjoin(path, MY_PRIVATE_KEY_FILE)
 	# define margin added to bounding box for downloading image 
-	margin = 0.1 
-	folder = path+"/Data/"
+	margin = 0.1
+	folder = pathjoin(path,"Data")
 	
 	#-----------------------------------------------------------------------
 	#                         access EE
 	#-----------------------------------------------------------------------
-	with open(path+'/Code/GoogleAccount.txt','r') as f: 
-		MY_SERVICE_ACCOUNT = f.readline() 
-	
-	MY_PRIVATE_KEY_FILE = path+'/Code/GoogleKey.pem'
-	ee.Initialize(ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, MY_PRIVATE_KEY_FILE))
-
-	#-----------------------------------------------------------------------
-	#                 determine glacier boundry from excel file
-	#-----------------------------------------------------------------------
-        print("Glacier: "+ glacier)
-	glacier = glacier.encode('ascii','ignore')
-	LonLen = MaxLon-MinLon
-	LatLen = MaxLat-MinLat
-	MaxLon1 = MaxLon + margin*LonLen
-	MinLon1 = MinLon - margin*LonLen
-	MaxLat1 = MaxLat + margin*LatLen
-	MinLat1 = MinLat - margin*LatLen
-	bounds = [[MinLon1,MinLat1],[MaxLon1,MinLat1],[MaxLon1,MaxLat1],[MinLon1,MaxLat1]]
-        print("Glacier bounds:")
-        print(bounds)
+	ee.Initialize(ee.ServiceAccountCredentials(MY_SERVICE_ACCOUNT, keyfile))
 
 	#------------------------------------------------------------------------
 	#                       download L7 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
-
-        print("download L7 images from EE")
 	beg_date = datetime.datetime(1999,1,1)
 	end_date = datetime.datetime(2014,1,1)
-	collection = ee.ImageCollection('LE7_L1T').filterDate(beg_date,end_date) 
+	collection = ee.ImageCollection('LE7_L1T').filterDate(beg_date,end_date)
 	polygon = ee.Feature.MultiPolygon([[bounds]])
 	collection = collection.filterBounds(polygon)
 	metadata = collection.getInfo()
-
 	print(metadata.keys())
 	print(metadata['features'][0]['id'])
 
-	newpath = folder+glacier+"/Landsat"
-	if not os.path.exists(newpath): os.makedirs(newpath)
+	newpath = pathjoin(folder,glacier,"Landsat")
+	if not pathexists(newpath): os.makedirs(newpath)
 
 	#------------------------------------------------------------------------
 	#                      download Band 61 of the Landsat
 	#-----------------------------------------------------------------------
 
-        print("download band 61")
-
 	for i in range(len(metadata['features'])):
 		try:
 			sceneName = metadata['features'][i]['id']
-			print sceneName + ': Scene ' + str(i+1) + ' of ' + str(len(metadata['features']))
+			print(sceneName + ': Scene ' + str(i+1) + ' of ' + str(len(metadata['features'])))
 			workingScene = ee.Image(sceneName)
 			dlPath = workingScene.getDownloadUrl({
 				'scale': 30,
@@ -171,9 +157,8 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 			})
 			scenezip = urllib2.urlopen(dlPath)
 			# download the zip file to documnet folder
-			workingDir = newpath+'/'+sceneName.split('/')[1]
-			# print workingDir
-			if not os.path.exists(workingDir):
+			workingDir = pathjoin(newpath,sceneName.split('/')[1])
+			if not pathexists(workingDir):
 				os.mkdir(workingDir)
 			with open(workingDir + '.zip', "wb") as local_file:
 				local_file.write(scenezip.read())
@@ -183,47 +168,43 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 				jstring = j.encode('ascii','ignore')
 				jsp = jstring.split(".")
 				if jsp[2] =='tif':
-					fd = open(workingDir + '/' + j,"w")
+					fd = open(pathjoin(workingDir,j),"w")
 					fd.write(zfile.read(j))
 					fd.close()
 					
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-                except Exception, e:
-                    print("Download DEM")
-                    print(str(e))
-                    continue
+
+		except Exception, e:
+                        print('Download band 61')
+                        print(str(e))
+			pass
 
 	#------------------------------------------------------------------------
 	#                       download L5 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
-
-        print("download L5 images from EE")
-
 	beg_date = datetime.datetime(1984,1,1)
 	end_date = datetime.datetime(2012,5,5)
 	collection = ee.ImageCollection('LT5_L1T').filterDate(beg_date,end_date)
 	polygon = ee.Feature.MultiPolygon([[bounds]])
 	collection = collection.filterBounds(polygon)
 	metadata = collection.getInfo()
-	print metadata.keys()
-	print metadata['features'][0]['id']
+	print(metadata.keys())
+	print(metadata['features'][0]['id'])
 
-	newpath = folder+glacier+"/Landsat"
-	if not os.path.exists(newpath): os.makedirs(newpath)
+	newpath = pathjoin(folder,glacier,"Landsat")
+	if not pathexists(newpath): os.makedirs(newpath)
 
 	#------------------------------------------------------------------------
 	#                      download Band 6 of the Landsat
 	#-----------------------------------------------------------------------
 
-        print("download Band 6 of the Landsat")
-
 	for i in range(len(metadata['features'])):
 		try:
 			sceneName = metadata['features'][i]['id']
-			print sceneName + ': Scene ' + str(i+1) + ' of ' + str(len(metadata['features']))
-			workingScene = ee.Image(sceneName)    
+			print(sceneName + ': Scene ' + str(i+1) + ' of ' + str(len(metadata['features'])))
+			workingScene = ee.Image(sceneName)
 			dlPath = workingScene.getDownloadUrl({
 				'scale': 30,
 				'bands':[{'id':'B6'},{'id':'B5'},{'id':'B4'},{'id':'B3'},{'id':'B2'}],
@@ -232,8 +213,8 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 			})
 			scenezip = urllib2.urlopen(dlPath)
 			# download the zip file to documnet folder
-			workingDir = newpath+'/'+sceneName.split('/')[1] 
-			if not os.path.exists(workingDir):
+			workingDir = pathjoin(newpath,sceneName.split('/')[1])
+			if not pathexists(workingDir):
 				os.mkdir(workingDir)
 			with open(workingDir + '.zip', "wb") as local_file:
 				local_file.write(scenezip.read())
@@ -242,35 +223,34 @@ def ee_download_Allbands(path,glacier,MaxLon,MinLon,MaxLat,MinLat):
 			for j in zfile.namelist():
 				jstring = j.encode('ascii','ignore')
 				jsp = jstring.split(".")
-				if jsp[2] =='tif': 
-					fd = open(workingDir + '/' + j,"w")
+				if jsp[2] =='tif':
+					fd = open(pathjoin(workingDir, j),"w")
 					fd.write(zfile.read(j))
 					fd.close()
 					
 			# delete the zip file
 			os.remove(workingDir + '.zip')
-                except Exception, e:
-                    print(str(e))
-                    continue
+
+		except:
+                        print('Download Band 6')
+                        print(str(e))
+			pass
 
 	#------------------------------------------------------------------------
 	#                       download L4 images from EE
 	#------------------------------------------------------------------------
 	# define time period of images
-
-        print("download L4 images from EE")
-
 	beg_date = datetime.datetime(1982,8,22)
 	end_date = datetime.datetime(1993,12,14)
-	collection = ee.ImageCollection('LT4_L1T').filterDate(beg_date,end_date) 
+	collection = ee.ImageCollection('LT4_L1T').filterDate(beg_date,end_date)
 	polygon = ee.Feature.MultiPolygon([[bounds]])
 	collection = collection.filterBounds(polygon)
 	metadata = collection.getInfo()
-	print metadata.keys()
-	print metadata['features'][0]['id']
+	print(metadata.keys())
+	print(metadata['features'][0]['id'])
 
-	newpath = folder+glacier+"/Landsat"
-	if not os.path.exists(newpath): os.makedirs(newpath)
+	newpath = pathjoin(folder,glacier,"Landsat")
+	if not pathexists(newpath): os.makedirs(newpath)
 
 #ee_download('/home/aseshad/RA/Pipeline/','Rhonegletscher',7.881253,7.707613,45.985001,45.916481)
 

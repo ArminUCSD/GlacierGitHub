@@ -7,7 +7,7 @@
 #---------------Method 3: Extract intensity profile from B61------------------
 #-----------------------------------------------------------------------------
 library(mgcv)
-# Use bilinear iterpolation to find intensity profile as weighted avarge 
+# Use bilinear interpolation to find intensity profile as weighted average 
 # of parallel paths 
 # input - B61: B61 matrix
 #        - coord.parallel: a dataframe returned by path_parallel function 
@@ -70,7 +70,7 @@ IPBL<- function(B61, coord.parallel, pmissing , weighting = "linear"){
     }   
   }
   
-  # use gam to interporlate missing values from existing valeus
+  # use gam to interpolate missing values from existing values
   y = value
   if(c>0){
     if(c<=pmissing*nrow){

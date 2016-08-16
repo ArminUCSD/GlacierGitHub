@@ -1,4 +1,5 @@
 import os
+from os.path import join as pathjoin
 import shutil
 from math import exp
 try:
@@ -13,9 +14,11 @@ def classify(path,p_nonzero,b0,b1,b2):
 	print len(os.listdir(path))
 	i=1
 	for folder in os.listdir(path):
-		for fn in os.listdir(path+folder):
+            if folder.endswith('.zip'):
+                continue
+		for fn in os.listdir(pathjoin(path,folder)):
 			if fn.endswith('.B6_VCID_1.tif') or fn.endswith('.B6.tif'):
-				im = Image.open(path+folder+'/'+fn)
+				im = Image.open(pathjoin(path,folder,fn))
 				image_array = numpy.array(im)
 				total = im.size[0]*im.size[1]
 				arr_nonzero = []
@@ -28,14 +31,8 @@ def classify(path,p_nonzero,b0,b1,b2):
 					t = b0 + b1*numpy.mean(arr_nonzero) + b2*numpy.std(arr_nonzero)
 					p = 1/(1+exp(-1*t))
 					if p <= 0.5:
-						shutil.rmtree(path+folder)
-						# print "removing "+path+folder, i
-						# i=i+1
+						shutil.rmtree(pathjoin(path,folder))
 				else:
-					shutil.rmtree(path+folder)
-					# print "removing "+path+folder, i
-					# i=i+1
-
-
+					shutil.rmtree(pathjoin(path,folder))
 
 #classify('/home/aseshad/earth engine download/GORNERGLETSCHER',0.75,-50.50,0.486,0.523)

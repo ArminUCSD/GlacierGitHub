@@ -16,27 +16,17 @@ except:
 def terminus_est(dd1,tt,distanceTab, invert, distPerYear,flip):
 	dataset2 = numpy.asarray(dd1)
 	dataset = dataset2.T
-	# print dataset1
-	# dataset = numpy.flipud(dataset1)
-	# print dataset
-	# #extra
-	# dataset = numpy.flipud(dataset)
-	# print dataset
 	if flip:
 		dataset = numpy.flipud(dataset)
 	if invert:
 		dataset = numpy.negative(dataset)
 
 	yearTab = numpy.asarray(tt)
-	# print yearTab
 	yearTab.sort()
-	# print len(yearTab)
 
 	maxVal = numpy.zeros(numpy.shape(dataset))
 	valFrom = numpy.zeros(numpy.shape(dataset))
-	# print(distanceTab)
 	jdiff = distanceTab[1] - distanceTab[0]
-	#fullIdiff = yearTab[len(yearTab)-1]-yearTab[0]
 	if flip:
 		yearTab = numpy.flipud(yearTab)
 
@@ -104,22 +94,6 @@ def terminus_est(dd1,tt,distanceTab, invert, distPerYear,flip):
 		dataset = numpy.negative(dataset)
 
 
-	# X,Y=numpy.meshgrid(range(dataset2.shape[0]+1),range(dataset2.shape[1]+1))
-	# im = pylab.pcolormesh(X,Y,dataset, cmap='jet')
-	# pylab.colorbar(im, orientation='vertical')
-
-	# t = numpy.array(range(len(maxVal)))
-	# # print len(terminusPaths[0])
-
-	# # print numpy.shape(t)
-	# # print numpy.shape(li)
-	# for li in terminusPaths:
-	# 	pylab.plot(li,t)
-	# if flip:
-	# 	pylab.savefig("/home/aseshad/Desktop/Gauli flippedupdated500_try.tiff")
-	# else:
-	# 	pylab.savefig("/home/aseshad/Desktop/Gauli updated500_try.tiff")
-	# pylab.show()
 	return terminusPaths
 
 
@@ -132,10 +106,6 @@ def plotTerminusPaths(dd1,selectedPaths):
 	pylab.colorbar(im, orientation='vertical')
 
 	t = numpy.array(range(len(selectedPaths[0])))
-	# print len(terminusPaths[0])
-
-	# print numpy.shape(t)
-	# print numpy.shape(li)
 	for li in selectedPaths:
 		pylab.plot(li,t)
 	pylab.savefig("/home/aseshad/Desktop/Gauli_best3.tiff")
@@ -204,9 +174,4 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
 	else:
 		bestPath = numpy.argmax(pathCosts)
 
-	# numpy.savetxt(os.getcwd()+"/"+glacier+"_pathcosts",pathCosts,delimiter=',')
-	# plotTerminusPaths(dataset2,selectedPaths)
-	# selectedPaths = numpy.array(selectedPaths)
-	# selectedPathsMatrix = robjects.r.matrix(selectedPaths, nrow=len(selectedPaths))
-	# print selectedPaths
 	return selectedPaths[bestPath]

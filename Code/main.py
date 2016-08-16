@@ -1,6 +1,5 @@
-#TODO update paths so that they: 1) are OS independent, 2) do not require chdir
-
 import os
+from os.path import join as pathjoin
 import fnmatch
 import glob
 try:
@@ -17,6 +16,10 @@ import Method4
 import TI
 import rgbplot
 
+
+DEMFILE1 = "GMTED2010.be75.tif"
+DEMFILE2 = "srtm90_v4.elevation.tif"
+
 # Used in step 7
 def find(pattern, path):
     for root, dirs, files in os.walk(path):
@@ -27,8 +30,9 @@ def find(pattern, path):
 
 # General parameters
 GlacierID=""
-GlacierNames1 = ["Athabasca Glacier","Chaba Glacier","COXE","David Glacier","Fassett","Fox, Explorer"]
-GlacierNames= ["Litian glacier","North Canoe Glacier","CORBASSIERE GLACIER DE","FERPECLE GLACIER DE","FIESCHERGLETSCHER VS","Findelengletscher","FORNO VADREC DEL","FRANZ JOSE","GAULIGLETSCHER","GORNERGLETSCHER","GROSSER ALETSCH GLETSCHER","MONT MINE GLACIER DU","MORTERATSCH VADRET DA","OTEMMA","Rhonegletscher","Ferebee","Fraenkel","Mer de Glace","MURCHISON","Torre"]
+GlacierNames = ["Athabasca Glacier"]
+GlacierNames1= ["Chaba Glacier","COXE","David Glacier","Fassett","Fox, Explorer","Litian glacier","North Canoe Glacier","CORBASSIERE GLACIER DE","FERPECLE GLACIER DE","FIESCHERGLETSCHER VS","Findelengletscher","FORNO VADREC DEL","FRANZ JOSE","GAULIGLETSCHER","GORNERGLETSCHER","GROSSER ALETSCH GLETSCHER","MONT MINE GLACIER DU","MORTERATSCH VADRET DA","OTEMMA","Rhonegletscher","Ferebee","Fraenkel","Mer de Glace","MURCHISON","Torre"]
+
 
 imageInv = ["B2","B3","B4","ndsi"]
 noImageInv = ["B5","B6_VCID_1","61"]
@@ -41,72 +45,147 @@ weights = "central"    # Central, Linear or equal
 
 path = os.path.abspath('../')
 
-# Main loop over glaciers
-for GlacierName in GlacierNames:
-	os.chdir(path)
-	print GlacierName
-	if Input in imageInv:
-		invert = 1
-	else:
-		invert = 0
-	
-	try:
-		#1.From Glims Database
-		print "1.Querying Database for glacier bounds"
-		BoundingBox = querydb.findBoundingBoxByName(GlacierName)
-		StartPoint =  querydb.findStartByName(GlacierName)
-		
-		#2.From Earth Engine
-		print "2.Downloading from earth engine and classification"
-		DEMfile = ee_download.ee_download_DEM(path,GlacierName,float(BoundingBox[0]),float(BoundingBox[2]),float(BoundingBox[1]),float(BoundingBox[3]))
-		rgbplot.downloadAndClassifyLandsat(GlacierName,path,BoundingBox)
-			
-		#3.Method1 - Finding the path of the glacier
-		print "3.Determining the flowline of the glacier"
-		print os.getcwd()
-		dim = Method1.getDimensions(path+'Data/'+GlacierName+'/'+DEMfile)
-		start = Method1.beginningPoint(float(BoundingBox[0]),float(BoundingBox[1]),float(BoundingBox[2]),float(BoundingBox[3]),float(StartPoint[0]),float(StartPoint[1]),dim[0],dim[1],0.1)
-		print start
-		GLpath = Method1.findPath(path+'Data/'+GlacierName+'/'+DEMfile,int(start[1]),int(start[0]),flowline,DEMfile)
-		pathVector = Method1.smoothPath(GLpath)
-		pathVectors = Method1.parallelPath(pathVector,path+'Data/'+GlacierName+'/'+DEMfile,numParallel)
+if Input in imageInv:
+    invert = 1
+else:
+    invert = 0
 
-		#4.Method3 - Calculating the intensity profile time series
-		print "4.Computing the Intensity profile Time Series"
-		timeline,ipTimeSeries, landsatFiles = Method3.intensityProfile(path+'Data/'+GlacierName+'/Landsat/',pathVectors,Input,weights)
-		timeline.sort()
-		arcVector = Method3.arcLengthVector(ipTimeSeries[timeline[0]],0.2,30)
+def getLandsatPath(path, GlacierName):
+    landsatPath = pathjoin(path,'Data',GlacierName,'Landsat')
+    return landsatPath
 
-		#6.Method4 - Estimating the terminus
-		print "5.Estimating Terminus and plot results"
-		gm = querydb.findGroundMeasurement(GlacierName)
-		grndmeas = {}
-		list1 = []
-		list2 = []
-		for item in gm:
-			list1.append(int(item[0]))
-			list2.append(float(item[1]))
-		grndmeas['year'] = list1
-		grndmeas['gm'] = list2
-		terminus = Method4.estimateTerminus(path+'Results/'+GlacierName+'/'+Input,GlacierName,arcVector,timeline,ipTimeSeries,grndmeas,invert,distPerYear)
+#Get bounding box from Glims database
+def getBoundingBox(GlacierName):
+    BoundingBox = querydb.findBoundingBoxByName(GlacierName)
+    StartPoint =  querydb.findStartByName(GlacierName)
+    return BoundingBox, StartPoint
 
-		#6.Plotting flowline
-		print "6.Plotting flowline"
-		folder = os.listdir(path+'Data/'+GlacierName+'/Landsat/')
-		if Input != 'B6_VCID_1':
-			img = find('*.'+Input+'.tif',path+'Data/'+GlacierName+'/Landsat/'+folder[-1])
-		else:
-			img = find('*.B6.tif',path+'Data/'+GlacierName+'/Landsat/'+folder[-1])
-		os.chdir(path)
-		Method1.plotPaths(pathVectors,path+'Results/'+GlacierName+'/'+Input,GlacierName,img,numParallel,invert,Input,terminus[8],terminus[9])
-		os.chdir(path)
-		Method1.plotPathsDEM(pathVectors,path+'Results/'+GlacierName,GlacierName,path+'Data/'+GlacierName+'/'+DEMfile,numParallel,invert)
+def getPathVectors(path, GlacierName, DEMfile):
+    BoundingBox, StartPoint = getBoundingBox(GlacierName)
+    demfilepath = pathjoin(path,'Data',GlacierName,DEMfile)
+    if not os.path.exists(demfilepath):
+        demfilepath = pathjoin(path,'Data',GlacierName,DEMFILE1)
+        if not os.path.exists(demfilepath):
+            demfilepath = pathjoin(path,'Data',GlacierName,DEMFILE2)
+            if not os.path.exists(demfilepath):
+                raise FileNotFoundError("No DEM file")
+    else:
+        pass
 
-		#7. Create series of images with terminus location
-		print "7.Generating terminus Plots"
-		os.chdir(path)
-		TI.terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,path+'Results/'+GlacierName+'/'+Input,invert,Input)
+    dim = Method1.getDimensions(demfilepath)
+    start = Method1.beginningPoint(float(BoundingBox[0]),float(BoundingBox[1]),float(BoundingBox[2]),float(BoundingBox[3]),float(StartPoint[0]),float(StartPoint[1]),dim[0],dim[1],0.1)
+    print(start)
+    GLpath = Method1.findPath(pathjoin(path,'Data',GlacierName,DEMfile),int(start[1]),int(start[0]),flowline,DEMfile)
+    pathVector = Method1.smoothPath(GLpath)
+    pathVectors = Method1.parallelPath(pathVector,pathjoin(path,'Data',GlacierName,DEMfile),numParallel)
+    return pathVectors
 
-        except Exception, e:
-                print(str(e))
-		continue	
+def downloadFiles(path,GlacierName):
+    print("1.Querying Database for glacier bounds: "+GlacierName)
+    try:
+        BoundingBox, StartPoint = getBoundingBox(GlacierName)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    try:
+        print("2. Download Landsat")
+        rgbplot.downloadLandsat(path,GlacierName,BoundingBox)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    try:
+        print("3.Download DEM from earth engine")
+        bounds = ee_download.getBounds(float(BoundingBox[0]),float(BoundingBox[2]),float(BoundingBox[1]),float(BoundingBox[3]))
+        DEMfile = ee_download.ee_download_DEM(path,GlacierName,bounds)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    return BoundingBox, DEMfile
+
+def makeRGBNDSI(path, GlacierName, BoundingBox):
+    try:
+        print("4. Classify Landsat and Save RGB and NDSI files")
+        rgbplot.classifyLandsat(path,GlacierName,BoundingBox)
+    except Exception, e:
+        print(str(e))
+        pass
+
+def analyze(path, GlacierName, DEMfile):
+    landsatPath = getLandsatPath(path, GlacierName)
+    try:
+        print("5.Determining the flowline of the glacier")
+        pathVectors = getPathVectors(path, GlacierName, DEMfile)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    try:
+        print("6.Computing the Intensity profile Time Series")
+        #TODO need to get a value for pmissing from somewhere
+        #Hard-coded for now
+        pmissing=.05
+        timeline,IPTimeSeries, landsatFiles = Method3.intensityProfile(landsatPath,pathVectors,Input,pmissing,weights)
+        timeline.sort()
+        arcVector = Method3.arcLengthVector(IPTimeSeries[timeline[0]],0.2,30)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    try:
+        print("7.Estimating Terminus and plot results")
+        gm = querydb.findGroundMeasurement(GlacierName)
+        grndmeas = {}
+        list1 = []
+        list2 = []
+        for item in gm:
+                list1.append(int(item[0]))
+                list2.append(float(item[1]))
+        grndmeas['year'] = list1
+        grndmeas['gm'] = list2
+        #TODO need to get a value for ip from somewhere
+        #Hard-coded for now
+        ip=1
+        terminus = Method4.estimateTerminus(pathjoin(path,'Results',GlacierName,Input),GlacierName,arcVector,timeline,IPTimeSeries,grndmeas,invert,distPerYear,ip)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    return pathVectors, timeline, landsatFiles, terminus
+
+def generatePlots(path, GlacierName, pathVectors, timeline, terminus):
+    landsatPath = getLandsatPath(path, GlacierName)
+    try:
+        print("8.Plotting flowline")
+        folder = os.listdir(landsatPath)
+        tifpath = pathjoin(landsatPath,folder[-1])
+        if Input != 'B6_VCID_1':
+                img = find('*.'+Input+'.tif',tifpath)
+        else:
+                img = find('*.B6.tif', tifpath)
+        Method1.plotPaths(pathVectors,pathjoin(path,'Results',GlacierName,Input),GlacierName,img,numParallel,invert,Input,terminus[8],terminus[9])
+        Method1.plotPathsDEM(pathVectors,pathjoin(path,'Results',GlacierName),GlacierName,pathjoin(path,'Results',GlacierName,DEMfile),numParallel,invert)
+    except Exception, e:
+        print(str(e))
+        pass
+
+    try:
+        print("9.Generating terminus Plots")
+        TI.terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,pathjoin(path,'Results',GlacierName,Input),invert,Input)
+    except Exception, e:
+        print(str(e))
+        pass	
+
+def processGlaciers(glaciers=GlacierNames, DEMfile=DEMFILE1):
+    # Main loop over glaciers
+    for GlacierName in GlacierNames:
+        landsatPath = getLandsatPath(path,GlacierName)
+        BoundingBox, DEMfile = downloadFiles(path, GlacierName)
+        makeRGBNDSI(path, GlacierName, BoundingBox)
+        pathVectors, timeline, landsatFiles, terminus = analyze(path, GlacierName, DEMfile)
+        generatePlots(path, GlacierName, pathVectors, timeline, landsatFiles, terminus)
+
+if __name__ == '__main__':
+    processGlaciers(glaciers=GlacierNames)
