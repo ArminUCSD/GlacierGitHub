@@ -3,15 +3,23 @@ import rpy2.robjects as robjects
 import rpy2.rinterface as ri
 from rpy2.robjects.numpy2ri import numpy2ri
 from rpy2.robjects.conversion import py2ri
+from rpy2.robjects.vectors import FloatVector
 import numpy
 robjects.numpy2ri.activate()
+
+def getIPDict(ipTimeSeries):
+    ipdict = {}
+    for d in ipTimeSeries:
+        ipdict.update(d)
+        return ipdict
 
 def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,distPerYear, ip):
 
 	ri.initr()
 	robjects.r('''source('terminus.R')''')
 	r_tp = robjects.globalenv['terminus']
-	obs = robjects.DataFrame(ipTimeSeries)
+        ipdict = getIPDict(ipTimeSeries)
+	obs = robjects.DataFrame(ipdict)
 	arcV = robjects.IntVector(arcVector)
 	timlin = robjects.FloatVector(timeline)
 	if gm :

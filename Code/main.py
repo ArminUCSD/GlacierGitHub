@@ -129,7 +129,9 @@ def analyze(path, GlacierName, DEMfile):
         pmissing=.05
         timeline,IPTimeSeries, landsatFiles = Method3.intensityProfile(landsatPath,pathVectors,Input,pmissing,weights)
         timeline.sort()
-        arcVector = Method3.arcLengthVector(IPTimeSeries[timeline[0]],0.2,30)
+        #Get the first value of the time series
+        firsttime = IPTimeSeries[0].values()[0] 
+        arcVector = Method3.arcLengthVector(firsttime,0.2,30)
     except Exception, e:
         print(str(e))
         pass

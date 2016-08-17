@@ -28,7 +28,7 @@ def intensityProfile(imagespath,path,Input,pmissing,weights):
 	r_ip = robjects.globalenv['IPBL']
 	timeline = []
 	landsatFiles = {}
-	IPTimeSeries = {}
+	IPTimeSeries = [] 
 	for images in os.listdir(imagespath):
 		for fn in os.listdir(pathjoin(imagespath,images)):
 			if fn.endswith('.'+Input+'.tif') or (Input == "B6_VCID_1" and fn.endswith('.B6.tif')):
@@ -47,7 +47,7 @@ def intensityProfile(imagespath,path,Input,pmissing,weights):
 					IParray = numpy.asarray(IP)
 					if numpy.sum(IParray) > 0:
 						timeline.append(time)
-						IPTimeSeries[timeline[-1]] = IP
-						landsatFiles[timeline[-1]] = pathjoin(imagespath,images,fn)
+                                                IPTimeSeries.append({time: IP})
+						landsatFiles[time] = pathjoin(imagespath,images,fn)
 	return (timeline,IPTimeSeries,landsatFiles)
 
