@@ -260,78 +260,70 @@ terminus_plot <- function(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,mea
 #----------------------------------------------------------------------
 
 library(rPython)
-terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear, IP = 1){
-  #time <- floor(min(tt)):ceiling(max(tt))
-  #if ( IP == 1){
-    current_dir = getwd()
-    setwd(direc)
-    #glacier = "Rhonegletscher"
-    IPTS = read.csv(paste(glacier, ".csv",sep = ""))
-    nrow = nrow(IPTS)
-    ncol = ncol(IPTS)
-    obs = as.matrix(IPTS[2:nrow, 2:(ncol-1)] )
-    rownames(obs)= NULL
-    colnames(obs) = NULL
-    tt = as.numeric(IPTS[1,2:(ncol-1)]) # 
-    ss = as.numeric(as.character(IPTS[2:nrow,1]))    
-    setwd(current_dir)
-  #}
+terminus <- function(glacier, obs, ss, tt, IPTS, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
+  nrow = nrow(IPTS)
+  ncol = ncol(IPTS)
+  obs = as.matrix(IPTS[2:nrow, 2:(ncol-1)] )
+  rownames(obs)= NULL
+  colnames(obs) = NULL
+  tt = as.numeric(IPTS[1,2:(ncol-1)])  
+  ss = as.numeric(as.character(IPTS[2:nrow,1]))    
   sSmooth = spatial_smooth(obs, ss, knotS = min( round(length(ss)/4)+4, 35+4))
   python.load("terminus_est.py")
 #-------------------------------------------------------------------------------
 # assume theta is a matrix of 3 columns corresponding to three candidate terminus 
   theta0 = python.call("terminus_paths",sSmooth$dd1,tt,ss,glacier,invert,distPerYear)
 #----------------------------------------------------------------------------
-      if (temporal == 1) {
-        out1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas)    
-      }else if (temporal ==2){# here!
-        list1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas) 
-        list2 = list(unsmooth = ss[theta0])
-        out1 = c(list1, list2)
-      }else {
-        out1 = list(unsmooth = ss[theta0])
-      }
+  if (temporal == 1) {
+    out1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas)    
+  }else if (temporal ==2){# here!
+    list1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas) 
+    list2 = list(unsmooth = ss[theta0])
+    out1 = c(list1, list2)
+  }else {
+    out1 = list(unsmooth = ss[theta0])
+  }
 
-      # fit a line through the terminus locations
-      if (temporal == 1) {
-        lm = lm(out1$pred ~ tt) # fit a line through the terminus 
-      }
-      else { # here! fit a line through unsmoothed path 
-        lm = lm(out1$unsmooth ~ tt) # fit a line through the terminus 
-      }
-      slope= summary(lm)[4][[1]][2,1]
-      slope.se= summary(lm)[4][[1]][2,2]
-      line.fit = lm$fitted.values  
+  # fit a line through the terminus locations
+  if (temporal == 1) {
+    lm = lm(out1$pred ~ tt) # fit a line through the terminus 
+  }
+  else { # here! fit a line through unsmoothed path 
+    lm = lm(out1$unsmooth ~ tt) # fit a line through the terminus 
+  }
+  slope= summary(lm)[4][[1]][2,1]
+  slope.se= summary(lm)[4][[1]][2,2]
+  line.fit = lm$fitted.values  
 
-      # Ground measurement calculations
-      if(!is.null(meas)){
-        ind = which((meas[,1] > floor(min(tt)))*(meas[,1]<ceiling(max(tt)))==1)
-        adj <- mean(out1$predMeas[ind]) - mean(cumsum(meas[ind,2]))# why use cumsum instead of sum????
-        measAdj <- data.frame(tt = meas[ind,1], gm = cumsum(meas[ind,2]) + adj)  
-        MIAE <- mean( abs(out1$predMeas[ind] - measAdj[,2]) )
-        MAD <- max( abs(out1$predMeas[ind] - measAdj[,2]) )
-      }
+  # Ground measurement calculations
+  if(!is.null(meas)){
+    ind = which((meas[,1] > floor(min(tt)))*(meas[,1]<ceiling(max(tt)))==1)
+    adj <- mean(out1$predMeas[ind]) - mean(cumsum(meas[ind,2]))# why use cumsum instead of sum????
+    measAdj <- data.frame(tt = meas[ind,1], gm = cumsum(meas[ind,2]) + adj)  
+    MIAE <- mean( abs(out1$predMeas[ind] - measAdj[,2]) )
+    MAD <- max( abs(out1$predMeas[ind] - measAdj[,2]) )
+  }
+
+  if(is.null(meas)){
+    mat <- matrix(c(slope,slope.se, NA, NA ), nrow = 1)
+  }
+  else{
+    mat <- matrix(c(slope,slope.se, MIAE, MAD), nrow = 1)
+  }
+  colnames(mat) <- c("slope","slope.se", "MIAE", "MAD")
+  print (mat)
+  write.table(mat,paste(glacier,".txt", sep =""),col.name =TRUE,row.name=FALSE)  
+
+  if(plot==1){
+    bounds = terminus_plot(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,measAdj,temporal,linefit,invert)
+    write.table(obs, file = paste(glacier, "unsmoothed intensity.txt"), row.names =FALSE, col.names =FALSE)
+    write.table(tt, file = paste(glacier, "year.txt"), row.names =FALSE ,col.names =FALSE)
+    write.table(ss, file = paste(glacier, "distance.txt"), row.names =FALSE, col.names =FALSE)
+  }
   
-      if(is.null(meas)){
-        mat <- matrix(c(slope,slope.se, NA, NA ), nrow = 1)
-      }
-      else{
-        mat <- matrix(c(slope,slope.se, MIAE, MAD), nrow = 1)
-      }
-      colnames(mat) <- c("slope","slope.se", "MIAE", "MAD")
-      print (mat)
-      write.table(mat,paste(glacier,".txt", sep =""),col.name =TRUE,row.name=FALSE)  
-
-      if(plot==1){
-        bounds = terminus_plot(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,measAdj,temporal,linefit,invert)
-        write.table(obs, file = paste(glacier, "unsmoothed intensity.txt"), row.names =FALSE, col.names =FALSE)
-        write.table(tt, file = paste(glacier, "year.txt"), row.names =FALSE ,col.names =FALSE)
-        write.table(ss, file = paste(glacier, "distance.txt"), row.names =FALSE, col.names =FALSE)
-      }
-      
-      list = list(line.fit = line.fit, pred = out1$pred, predSe = out1$predSe, slope = slope, slopeSe = slope.se, dd1 = sSmooth$dd1,
-           MIAE = MIAE, MAD = MAD, lower = bounds$lower, upper = bounds$upper) 
-  return(list)
+  list = list(line.fit = line.fit, pred = out1$pred, predSe = out1$predSe, slope = slope, slopeSe = slope.se, dd1 = sSmooth$dd1,
+       MIAE = MIAE, MAD = MAD, lower = bounds$lower, upper = bounds$upper) 
+return(list)
  
 }
 

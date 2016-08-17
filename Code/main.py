@@ -20,7 +20,9 @@ import rgbplot
 DEMFILE1 = "GMTED2010.be75.tif"
 DEMFILE2 = "srtm90_v4.elevation.tif"
 
-# Used in step 7
+STEPSIZE = 0.2
+RESOLUTION = 30
+
 def find(pattern, path):
     for root, dirs, files in os.walk(path):
         for name in files:
@@ -131,7 +133,7 @@ def analyze(path, GlacierName, DEMfile):
         timeline.sort()
         #Get the first value of the time series
         firsttime = IPTimeSeries[0].values()[0] 
-        arcVector = Method3.arcLengthVector(firsttime,0.2,30)
+        arcVector = Method3.arcLengthVector(firsttime,STEPSIZE,RESOLUTION)
     except Exception, e:
         print(str(e))
         pass
@@ -147,10 +149,7 @@ def analyze(path, GlacierName, DEMfile):
                 list2.append(float(item[1]))
         grndmeas['year'] = list1
         grndmeas['gm'] = list2
-        #TODO need to get a value for ip from somewhere
-        #Hard-coded for now
-        ip=1
-        terminus = Method4.estimateTerminus(pathjoin(path,'Results',GlacierName,Input),GlacierName,arcVector,timeline,IPTimeSeries,grndmeas,invert,distPerYear,ip)
+        terminus = Method4.estimateTerminus(pathjoin(path,'Results',GlacierName,Input),GlacierName,arcVector,timeline,IPTimeSeries,grndmeas,invert,distPerYear)
     except Exception, e:
         print(str(e))
         pass
