@@ -12,6 +12,8 @@ try:
 except:
     from matplotlib import pylab
 
+TERMINUSPATHFILE = "path.csv"
+TIFFFILEPATH = "Gauli_best3.tiff"
 
 def terminus_est(dd1,tt,distanceTab, invert, distPerYear,flip):
 	dataset2 = numpy.asarray(dd1)
@@ -84,7 +86,7 @@ def terminus_est(dd1,tt,distanceTab, invert, distPerYear,flip):
 		if not flip:
 			li = numpy.flipud(li)
 		terminusPaths.append(li.tolist())
-	numpy.savetxt("/home/aseshad/Desktop/path.csv",terminusPaths,delimiter = ",")
+	numpy.savetxt(TERMINUSPATHFILE,terminusPaths,delimiter = ",")
 
 	# print terminusPaths
 
@@ -108,7 +110,7 @@ def plotTerminusPaths(dd1,selectedPaths):
 	t = numpy.array(range(len(selectedPaths[0])))
 	for li in selectedPaths:
 		pylab.plot(li,t)
-	pylab.savefig("/home/aseshad/Desktop/Gauli_best3.tiff")
+	pylab.savefig(TIFFFILEPATH)
 	pylab.show()
 
 def pathCost(dd1,path):
