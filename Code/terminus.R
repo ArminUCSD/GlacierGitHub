@@ -260,14 +260,7 @@ terminus_plot <- function(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,mea
 #----------------------------------------------------------------------
 
 library(rPython)
-terminus <- function(glacier, obs, ss, tt, IPTS, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
-  nrow = nrow(IPTS)
-  ncol = ncol(IPTS)
-  obs = as.matrix(IPTS[2:nrow, 2:(ncol-1)] )
-  rownames(obs)= NULL
-  colnames(obs) = NULL
-  tt = as.numeric(IPTS[1,2:(ncol-1)])  
-  ss = as.numeric(as.character(IPTS[2:nrow,1]))    
+terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
   sSmooth = spatial_smooth(obs, ss, knotS = min( round(length(ss)/4)+4, 35+4))
   python.load("terminus_est.py")
 #-------------------------------------------------------------------------------
