@@ -13,7 +13,7 @@ def getIPDict(ipTimeSeries):
         ipdict.update(d)
         return ipdict
 
-def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,distPerYear, ip):
+def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,distPerYear):
 
 	ri.initr()
 	robjects.r('''source('terminus.R')''')
@@ -32,5 +32,5 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
 	direc = path
 	if not os.path.exists(direc): os.makedirs(direc)
 	terminus = r_tp(glacier = glacier, obs = obs, ss = arcV, tt = timlin, meas = grndmeas, plot=ri.TRUE, direc = direc, linefit = 0,
-		temporal = 2, invert = invert, distPerYear = distPerYear, IP = ip)
+		temporal = 2, invert = invert, distPerYear = distPerYear)
 	return terminus
