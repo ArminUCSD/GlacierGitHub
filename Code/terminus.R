@@ -278,15 +278,19 @@ terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NUL
   }
 
   # fit a line through the terminus locations
-  if (temporal == 1) {
-    lm = lm(out1$pred ~ tt) # fit a line through the terminus 
-  }
-  else { # here! fit a line through unsmoothed path 
-    lm = lm(out1$unsmooth ~ tt) # fit a line through the terminus 
-  }
-  slope= summary(lm)[4][[1]][2,1]
-  slope.se= summary(lm)[4][[1]][2,2]
-  line.fit = lm$fitted.values  
+  # *** This step needs to be restored, but theta0 and tt do not have the same lengths 
+  # if (temporal == 1) {
+  #   lm = lm(out1$pred ~ tt) # fit a line through the terminus 
+  # }
+  # else { # here! fit a line through unsmoothed path 
+  #  lm = lm(out1$unsmooth ~ tt) # fit a line through the terminus
+  # }
+  # slope= summary(lm)[4][[1]][2,1]
+  # slope.se= summary(lm)[4][[1]][2,2]
+  # line.fit = lm$fitted.values  
+  slope = 0
+  slope.se = 0
+  line.fit = out1$pred  
 
   # Ground measurement calculations
   if(!is.null(meas)){
