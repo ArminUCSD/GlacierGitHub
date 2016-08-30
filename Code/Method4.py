@@ -15,12 +15,10 @@ def getIPDict(ipTimeSeries):
         return ipdict
 
 def sSmooth(obs,ss, knotS):
-    if knotS is None:
-        knotS = min( round(length(ss)/4)+4, 35+4)
     ri.initr()
     r.objects.r('''source('terminus.R')''')
     r_sm = robjects.globalenv['spatial_smooth']
-    smoothItem = r_sm(obs, ss, knotS)
+    smoothItem = r_sm(obs=obs, ss=ss, knotS=knotS)
     return smoothItem
 
 def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,distPerYear):
@@ -32,7 +30,10 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
 	obs = robjects.DataFrame(ipdict)
 	arcV = robjects.IntVector(arcVector)
 	timlin = robjects.FloatVector(timeline)
-        smoothItem = sSmooth(obs, arcV)
+
+        //TODO Why is knotS passed as a variable?
+        knotS = min( round(length(arcV)/4)+4, 35+4)
+        smoothItem = sSmooth(obs, arcV, knotS)
         theta0 = terminus_paths(smoothItem.dd1,tt,arcV,glacier,invert,distPerYear)
         print(len(timlin))
         print(timlin[2])
