@@ -1,6 +1,6 @@
 # modified terminus_plot and terminus to take 3 candidate terminus
-# will produce 3 seperate plot 2, plot 3, plot 4 corresponding to 3 candidate terminus 
-# python.call("terminus_est",sSmooth$dd1,tt,ss,invert,distPerYear) need to return a matrix
+# will produce 3 separate plots: plot 2, plot 3, plot 4 corresponding to 3 candidate terminus 
+# python.call("terminus_est",sSmooth$dd1,tt,ss,invert,distPerYear) needs to return a matrix
 # of 3 columns corresponding to best, second best, third best terminus 
 
 
@@ -260,12 +260,11 @@ terminus_plot <- function(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,mea
 #----------------------------------------------------------------------
 
 library(rPython)
-terminus <- function(glacier, obs, ss, tt, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
-  sSmooth = spatial_smooth(obs, ss, knotS = min( round(length(ss)/4)+4, 35+4))
-  python.load("terminus_est.py")
+terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
+
 #-------------------------------------------------------------------------------
 # assume theta is a matrix of 3 columns corresponding to three candidate terminus 
-  theta0 = python.call("terminus_paths",sSmooth$dd1,tt,ss,glacier,invert,distPerYear)
+#  theta0 = python.call("terminus_paths",sSmooth$dd1,tt,ss,glacier,invert,distPerYear)
 #----------------------------------------------------------------------------
   if (temporal == 1) {
     out1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas)    
