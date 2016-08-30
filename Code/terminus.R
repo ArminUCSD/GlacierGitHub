@@ -110,7 +110,7 @@ temporal_smooth <- function(ss,tt, est,dd3,theta0, knotsT =-1, meas){
     predMeas = NULL
     predMeasSe = NULL
   }
-  return(list(unsmooth = ss[theta0], pred = pred, predSe = predSe, predMeas = predMeas, predMeasSe = predMeasSe, knots = knots, wts = wts ))
+  return(list(unsmooth = theta0, pred = pred, predSe = predSe, predMeas = predMeas, predMeasSe = predMeasSe, knots = knots, wts = wts ))
   
 }
 
@@ -281,7 +281,7 @@ terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, dir
     lm = lm(out1$pred ~ tt) # fit a line through the terminus 
   }
   else { # here! fit a line through unsmoothed path 
-    lm = lm(out1$unsmooth ~ list(tt)) # fit a line through the terminus 
+    lm = lm(out1$unsmooth ~ tt) # fit a line through the terminus 
   }
   slope= summary(lm)[4][[1]][2,1]
   slope.se= summary(lm)[4][[1]][2,2]
