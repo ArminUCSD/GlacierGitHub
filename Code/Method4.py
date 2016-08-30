@@ -44,6 +44,6 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
 		grndmeas = robjects.r("NULL")
 	direc = path
 	if not os.path.exists(direc): os.makedirs(direc)
-	terminus = r_tp(glacier = glacier, obs = obs, ss = arcV, tt = timlin, theta0=theta0, meas = grndmeas, plot=ri.TRUE, direc = direc, linefit = 0,
+	terminus = r_tp(glacier = glacier, obs = obs, ss = arcV, tt = timlin, sSmooth=smoothItem, theta0=theta0, meas = grndmeas, plot=ri.TRUE, direc = direc, linefit = 0,
 		temporal = 2, invert = invert, distPerYear = distPerYear)
 	return terminus
