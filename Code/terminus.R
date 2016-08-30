@@ -260,7 +260,7 @@ terminus_plot <- function(direc,glacier,ss,tt,obs,out1,sSmooth,line.fit,meas,mea
 #----------------------------------------------------------------------
 
 library(rPython)
-terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 0,invert = 0, distPerYear){
+terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, direc = NULL, linefit = 0, temporal = 2,invert = 0, distPerYear){
 
 #-------------------------------------------------------------------------------
 # assume theta is a matrix of 3 columns corresponding to three candidate terminus 
