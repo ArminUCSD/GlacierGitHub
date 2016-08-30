@@ -110,7 +110,7 @@ temporal_smooth <- function(ss,tt, est,dd3,theta0, knotsT =-1, meas){
     predMeas = NULL
     predMeasSe = NULL
   }
-  return(list(unsmooth = theta0, pred = pred, predSe = predSe, predMeas = predMeas, predMeasSe = predMeasSe, knots = knots, wts = wts ))
+  return(list(unsmooth = ss[theta0], pred = pred, predSe = predSe, predMeas = predMeas, predMeasSe = predMeasSe, knots = knots, wts = wts ))
   
 }
 
@@ -270,10 +270,10 @@ terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, dir
     out1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas)    
   }else if (temporal ==2){# here!
     list1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas) 
-    list2 = list(unsmooth = theta0)
+    list2 = list(unsmooth = ss[theta0])
     out1 = c(list1, list2)
   }else {
-    out1 = list(unsmooth = theta0)
+    out1 = list(unsmooth = ss[theta0])
   }
 
   # fit a line through the terminus locations
