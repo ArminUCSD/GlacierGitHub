@@ -91,7 +91,7 @@ temporal_smooth <- function(ss,tt, est,dd3,theta0, knotsT =-1, meas){
   muT = function( obj, theta0, k){ obj[theta0[k],k]}
   wts <- sapply( seq(1,ncol(dd3),1), muT, obj = dd3, theta0 = theta0)
   wts[wts < 0] = 1e-06      
-  b <- gam( ss[theta0] ~ s(tt, bs = "cr", k = knotsT) , weights = wts, method = "REML")#### change this step tp linear regression!
+  b <- gam( ss[theta0] ~ s(tt, bs = "cr", k = knotsT) , weights = wts, method = "REML")#### change this step to linear regression!
   knots <- b$smooth[[1]]$xp						
   ### predicted path values				
   out <- predict( b, se.fit = TRUE)
@@ -270,10 +270,10 @@ terminus <- function(glacier, obs, ss, tt, theta0, meas= NULL, plot = FALSE, dir
     out1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas)    
   }else if (temporal ==2){# here!
     list1 = temporal_smooth(ss,tt,est = sSmooth$est, dd3 =sSmooth$dd3, theta0 = theta0, knotsT =round(length(tt)/4+2),meas) 
-    list2 = list(unsmooth = ss[theta0])
+    list2 = list(unsmooth = theta0)
     out1 = c(list1, list2)
   }else {
-    out1 = list(unsmooth = ss[theta0])
+    out1 = list(unsmooth = theta0)
   }
 
   # fit a line through the terminus locations
