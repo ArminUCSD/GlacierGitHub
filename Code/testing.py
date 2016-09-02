@@ -12,5 +12,9 @@ def partial():
     print("terminus")
     print(terminus)
 
+
+    print("Generating Plots")
+    generatePlots(path, GlacierName, pathVectors, timeline, terminus)
+
 if __name__ == '__main__':
     partial()
