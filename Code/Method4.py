@@ -8,12 +8,6 @@ import numpy
 from terminus_est import terminus_paths
 robjects.numpy2ri.activate()
 
-def getIPDict(ipTimeSeries):
-    ipdict = {}
-    for d in ipTimeSeries:
-        ipdict.update(d)
-        return ipdict
-
 def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,distPerYear):
 
 	ri.initr()
@@ -28,7 +22,7 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
         print('ipTimeSeries[1].keys()')
         print(ipTimeSeries[1].keys())
 
-        #ipdict = getIPDict(ipTimeSeries)
+        #convert ipTimeSeries from a list of dicts to a single dict
 	ipdict ={ k: v for d in ipTimeSeries for k, v in d.items() } 
         print("ipdict")
         print(ipdict)
