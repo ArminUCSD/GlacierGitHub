@@ -29,6 +29,8 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
         #TODO Why is knotS passed as a variable?
         knotS = min( round(len(arcV)/4)+4, 35+4)
         smoothItem = r_sm(obs=obs, ss=arcV, knotS=knotS)
+        print('smoothItem')
+        print(smoothItem)
 
         #smoothItem[0] = sSmooth$dd1 = first derivative
         theta0 = terminus_paths(smoothItem[0],timlin,arcV,glacier,invert,distPerYear)
