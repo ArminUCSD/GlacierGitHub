@@ -156,7 +156,7 @@ def analyze(path, GlacierName, DEMfile):
 
     return pathVectors, timeline, landsatFiles, terminus
 
-def generatePlots(path, GlacierName, pathVectors, timeline, terminus):
+def generatePlots(path, GlacierName, pathVectors, landsatFiles, timeline, terminus):
     landsatPath = getLandsatPath(path, GlacierName)
     try:
         print("8.Plotting flowline")
