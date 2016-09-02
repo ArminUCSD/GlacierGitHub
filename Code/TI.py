@@ -17,6 +17,7 @@ robjects.numpy2ri.activate()
 
 def terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,direc,invert,Input):
 	ri.initr()
+        print(os.path.abspath('.'))
 	robjects.r('''source('plot_terminus.R')''')
 	r_lt = robjects.globalenv['loc_terminus']
 	loc_terminus = r_lt(pathVectors,0.2,terminus[1])
