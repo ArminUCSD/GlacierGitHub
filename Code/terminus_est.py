@@ -145,15 +145,15 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
        # print(invert)
        # print("distPerYear")
        # print(distPerYear)
-       # term1 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,0)
-       # term2 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,1)
+       term1 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,0)
+       term2 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,1)
        # print("term1:")
        # print(term1)
        # print("term2:")
        # print(term2)
 
-	# term1.sort(key = sum, reverse = True)
-	# term2.sort(key = sum, reverse = True)
+	term1.sort(key = sum, reverse = True)
+	term2.sort(key = sum, reverse = True)
 	selectedPaths = []
 
 	selectedPaths.append(term1[0])
