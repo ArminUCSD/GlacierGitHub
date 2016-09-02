@@ -200,4 +200,4 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
         print(selectedPaths)
         print("bestPath:")
         print(bestPath)
-	return selectedPaths[bestPath][0]
+	return selectedPaths[bestPath]
