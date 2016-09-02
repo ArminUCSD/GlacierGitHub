@@ -21,16 +21,18 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
 	r_tp = robjects.globalenv['terminus']
         r_sm = robjects.globalenv['spatial_smooth']
 
-        print("ipTimeSeries[1]")
-        print(ipTimeSeries[1])
+        print("len(ipTimeSeries)")
+        print(len(ipTimeSeries))
 
         print(type(ipTimeSeries[1]))
         print('ipTimeSeries[1].keys()')
         print(ipTimeSeries[1].keys())
 
-        ipdict = getIPDict(ipTimeSeries)
+        #ipdict = getIPDict(ipTimeSeries)
+	ipdict ={ k: v for d in ipTimeSeries for k, v in d.items() } 
         print("ipdict")
         print(ipdict)
+
 	obs = robjects.DataFrame(ipdict)
         print("OBS")
         print(obs)
