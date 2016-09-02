@@ -180,8 +180,8 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
 	else:
 		bestPath = numpy.argmax(pathCosts)
 
-    print("selectedPaths 2:")
-    print(selectedPaths)
-    print("bestPath:")
-    print(bestPath)
+        print("selectedPaths 2:")
+        print(selectedPaths)
+        print("bestPath:")
+        print(bestPath)
 	return selectedPaths[bestPath][0]
