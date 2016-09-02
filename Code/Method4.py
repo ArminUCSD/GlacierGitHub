@@ -24,8 +24,9 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
         print("ipTimeSeries[1]")
         print(ipTimeSeries[1])
 
-        if(ipTimeSeries[1998.39726027] is not None):
-                print(ipTimeSeries[1998.39726027])
+        print(type(ipTimeSeries[1]))
+        print('ipTimeSeries[1].keys()')
+        print(ipTimeSeries[1].keys())
 
         ipdict = getIPDict(ipTimeSeries)
         print("ipdict")
