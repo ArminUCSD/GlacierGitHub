@@ -23,6 +23,9 @@ def estimateTerminus(path,glacier,arcVector,timeline,ipTimeSeries,gm,invert,dist
 
         ipdict = getIPDict(ipTimeSeries)
 	obs = robjects.DataFrame(ipdict)
+        print("OBS")
+        print(obs)
+
 	arcV = robjects.IntVector(arcVector)
 	timlin = robjects.FloatVector(timeline)
 
