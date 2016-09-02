@@ -16,6 +16,9 @@ import matplotlib.image as mpimg
 robjects.numpy2ri.activate()
 
 def terminusImages(pathVectors,landsatFiles,GlacierName,terminus,timeline,direc,invert,Input):
+        abspath = os.path.abspath(__file__)
+        dname = os.path.dirname(abspath)
+        os.chdir(dname)
 	ri.initr()
         print(os.path.abspath('.'))
 	robjects.r('''source('plot_terminus.R')''')
