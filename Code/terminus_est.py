@@ -142,9 +142,13 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
 
 	selectedPaths.append(term1[0])
 	selectedPaths.append(term2[0])
+    print("selectedPaths 1:")
+    print(selectedPaths)
 
 	terminusPaths = numpy.vstack((term1,term2))
 	terminusPaths = terminusPaths.tolist()
+    print("terminusPaths.tolist()")
+    print(terminusPaths)
 	if invert:
 		terminusPaths.sort(key = sum)
 	else:
@@ -176,4 +180,8 @@ def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
 	else:
 		bestPath = numpy.argmax(pathCosts)
 
+    print("selectedPaths 2:")
+    print(selectedPaths)
+    print("bestPath:")
+    print(bestPath)
 	return selectedPaths[bestPath][0]
