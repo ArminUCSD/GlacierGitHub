@@ -133,6 +133,18 @@ def pathCost(dd1,path):
 # year = yearTab[50:55]
 # distance = distanceTab[1300:1305]
 def terminus_paths(dataset2,yearTab, distanceTab,glacier,invert, distPerYear):
+        print("dataset2")
+        print(dataset2)
+        print("yearTab")
+        print(yearTab)
+        print("distanceTab")
+        print(distanceTab)
+        print("glacier")
+        print(glacier)
+        print("invert")
+        print(invert)
+        print("distPerYear")
+        print(distPerYear)
 	term1 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,0)
 	term2 = terminus_est(dataset2,yearTab,distanceTab,invert,distPerYear,1)
         print("term1:")
