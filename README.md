@@ -1,11 +1,11 @@
-#Minimum system requirements
+## Minimum system requirements
 Set up on Ubuntu >= 14.10
 Earlier releases do not have certain r-libraries (e.g. r-cran-matrixstats) in
 apt-get
 
-#Installation
+## Installation
 
-#Install requirements
+## Install requirements
 ```
 sudo apt-get update
 
@@ -42,7 +42,7 @@ version 1.5.2
 >sudo pip install oauth2client==1.5.2
 ```
 
-#Set up database
+## Set up database
 Set mysql root password. Default user for this application is 'root'. See ```Docs/``` for details. To set root password, see http://dev.mysql.com/doc/refman/5.7/en/default-privileges.html
 
 Create 'glaciers' database
